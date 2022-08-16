@@ -3,28 +3,13 @@ package Commands.Administrative;
 import Commands.CommandType;
 import Commands.OreganoCommand;
 
-public class AdministrativeCommand implements OreganoCommand {
+public abstract class AdministrativeCommand implements OreganoCommand {
 
-    private String name = null;
-    private Object type = CommandType.ADMINISTRATIVE;
-
-    public AdministrativeCommand(String name, Object type) {
-        this.name = name;
-        this.type = type;
-    }
-
-    @Override
-    public String getName() {
-        return null;
-    }
+    private final CommandType type = CommandType.ADMINISTRATIVE;
 
     @Override
     public CommandType getType() {
-        return null;
+        return type;
     }
 
-    @Override
-    public void execute() {
-
-    }
 }

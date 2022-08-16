@@ -16,6 +16,9 @@ public class DatabaseConnector {
      */
     private static final String test = "TEST";
 
+    /**
+     * Username for MariaDB user
+     */
     private static final String mariaUser = System.getenv("MARIAUSER");
 
     /**

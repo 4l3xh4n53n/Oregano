@@ -9,8 +9,6 @@ import java.util.Map;
 
 public class DatabaseSettingsManager {
 
-    // todo change settings to be automatically loaded when the bot starts up (leaving it like this now for testing purposes)
-
     private static final Logger log = LoggerFactory.getLogger(DatabaseSettingsManager.class);
 
     /**
@@ -102,25 +100,25 @@ public class DatabaseSettingsManager {
     public static String getGuildPrefix(String guildID){
         checkIfSettingsExist(guildID, "prefixes");
 
+        String prefix = "o.";
+
         try {
             Connection con = Configurations.DatabaseConnector.connect("Settings");
             if (con == null) return null;
             Statement st = con.createStatement();
             ResultSet rs = st.executeQuery("SELECT prefix FROM prefixes WHERE guild_id = '" + guildID + "'");
             rs.next();
-            String prefix = rs.getString("prefix");
+            prefix = rs.getString("prefix");
             st.close();
             rs.close();
             con.close();
-
-            return prefix;
 
         } catch (SQLException e){
             log.error(e.getMessage() + " ; VARIABLES: guildID: {}", guildID);
         }
 
+        return prefix;
 
-        return "not so empty string";
     }
 
     /*
@@ -289,7 +287,12 @@ public class DatabaseSettingsManager {
 
             for (int i = 1; rs.getMetaData().getColumnCount() > i; i++) {
                 String key = rs.getMetaData().getColumnName(i + 1);
-                Object value = rs.getObject(i + 1);
+                Object value;
+                if (key.endsWith("_use_role")){
+                    value = rs.getBoolean(i + 1);
+                } else {
+                    value = rs.getString(i + 1);
+                }
                 row.put(key, value);
             }
 
