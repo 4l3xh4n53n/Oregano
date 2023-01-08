@@ -37,7 +37,7 @@ public class Oregano {
 
         JDA jda = JDABuilder.createDefault(System.getenv("TOKEN"))
                 .addEventListeners(new CommandHandler())
-                .enableIntents(GatewayIntent.GUILD_MEMBERS)
+                .enableIntents(GatewayIntent.GUILD_MEMBERS, GatewayIntent.MESSAGE_CONTENT)
                 .setMemberCachePolicy(MemberCachePolicy.ALL)
                 .enableCache(CacheFlag.ROLE_TAGS)
                 .build();

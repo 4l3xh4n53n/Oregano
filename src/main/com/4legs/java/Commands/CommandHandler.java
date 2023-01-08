@@ -86,11 +86,14 @@ public class CommandHandler extends ListenerAdapter {
         if (!messageContent.startsWith(prefix)) return;
 
         String[] args = messageContent.replace(prefix, "").split("\\s+");
-        String argOne = args[0].toLowerCase(Locale.ROOT);
+        String commandWord = args[0].toLowerCase(Locale.ROOT);
+        args = Arrays.copyOfRange(args, 1, args.length); // Removes the command word from the array
 
-        if (commands.containsKey(argOne)){
+        if (commands.containsKey(commandWord)){
 
-            String response = commands.get(argOne).onCommand(e, message, guild, guildID, args);
+            String response = commands.get(commandWord).onCommand(e, message, guild, guildID, args);
+
+            if (response == null) return;
 
             e.getChannel().sendMessage(response).queue();
 

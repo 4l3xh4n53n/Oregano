@@ -2,7 +2,10 @@ package Commands.Administrative;
 
 import Configurations.SettingsManager;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.*;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.Role;
 import org.apache.commons.collections4.CollectionUtils;
 
 import java.util.ArrayList;
@@ -13,6 +16,25 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class AdministrativeUtilities {
+
+    /**
+     * Converts a String to an int
+     * @param string The String that is being converted
+     * @return int, returns -1 if the string isn't numerical
+     */
+    public static int stringToInt(String string) {
+
+        int result;
+
+        try {
+            result = Integer.parseInt(string);
+        } catch (Exception ignored){
+            result = -1;
+        }
+
+        return result;
+
+    }
 
     /**
      * Gets the member that has been mentioned in a message
@@ -112,6 +134,42 @@ public class AdministrativeUtilities {
         if (authorRoles.size() > 0) authorPosition = authorRoles.get(0).getPosition();
 
         return authorPosition > mentionedPosition;
+
+    }
+
+    /**
+     * Makes sure that the command author has the correct roles and is higher in the role hierarchy than the member they are issuing the command for
+     * @param guildID The guilds ID
+     * @param setting The setting that has to be checked, usually the name of the command
+     * @param author The person who sent the command
+     * @param requiredPermission The required Discord permissions
+     * @return boolean value, true of false depending on whether the author has the correct permissions or not
+     */
+    public static boolean checkPermissions(String guildID, String setting, Member author, Permission requiredPermission){
+
+        boolean authorHasPermission = false;
+
+        if (SettingsManager.administrativeCommandUsesRoles(guildID, setting)){
+
+            // Discord roles based authorization
+
+            String[] requiredRoles = SettingsManager.getAdministrativeRoles(guildID, setting);
+
+            if (CollectionUtils.containsAny(Arrays.asList(requiredRoles), getIDsFromRoles(author.getRoles()))){
+                authorHasPermission = true;
+            }
+        } else {
+
+            // Discord permissions based authorization
+
+            EnumSet<Permission> authorPermissions = author.getPermissions();
+
+            if (authorPermissions.contains(requiredPermission) || authorPermissions.contains(Permission.ADMINISTRATOR)){
+                authorHasPermission = true;
+            }
+        }
+
+        return authorHasPermission;
 
     }
 

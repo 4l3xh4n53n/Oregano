@@ -12,31 +12,31 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
-public class Ban extends AdministrativeCommand {
+public class Kick extends AdministrativeCommand{
 
-    public Ban(){
+    public Kick(){
         CommandHandler.addCommand(this);
     }
 
     @Override
     public String getExample() {
-        return "ban {ID/@USERNAME/TAG} <REASON>";
+        return "kick {ID/@USERNAME/TAG}";
     }
 
     @Override
     public String getPurpose() {
-        return "Bans a user which removes them from the guild and stops them from joining back.";
+        return "Kicks a user, which removes them from the guild but allows them to join back.";
     }
 
     @Override
     public String onCommand(MessageReceivedEvent e, Message message, Guild guild, String guildID, String[] args){
 
-        if (!SettingsManager.featureIsEnabled(guildID, "ban")) return null;
+        if (!SettingsManager.featureIsEnabled(guildID, "kick")) return null;
         if (args.length < 1) return "You have not included enough arguments to use this command.";
         Member mentioned = AdministrativeUtilities.getMentioned(guild, message, args[0]);
         if (mentioned == null) return "Member cannot be found.";
         Member author = e.getMember();
-        boolean hasPermission = AdministrativeUtilities.checkPermissions(guildID, "ban", author, mentioned, Permission.BAN_MEMBERS);
+        boolean hasPermission = AdministrativeUtilities.checkPermissions(guildID, "kick", author, mentioned, Permission.KICK_MEMBERS);
         if (!hasPermission) return "You do not have permission to use this command.";
 
         List<String> argsList = new LinkedList<>(Arrays.asList(args));
@@ -44,8 +44,10 @@ public class Ban extends AdministrativeCommand {
         argsList.remove(0);
         String reason = String.join(" ", argsList);
 
-        mentioned.ban(0, reason).queue();
-        return "Member has been banned";
+        guild.kick(mentioned).queue();
+
+        guild.kick(mentioned, reason).queue();
+        return "Member has been un-banned";
 
     }
 

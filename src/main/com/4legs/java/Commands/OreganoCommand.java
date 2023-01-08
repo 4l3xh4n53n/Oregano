@@ -22,6 +22,12 @@ public interface OreganoCommand {
     String getExample();
 
     /**
+     * Gets information of what the command does
+     * @return String ( Command Information )
+     */
+    String getPurpose();
+
+    /**
      * Executes the command
      */
     String onCommand(MessageReceivedEvent e, Message message, Guild guild, String guildID, String[] args);

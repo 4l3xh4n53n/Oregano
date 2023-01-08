@@ -8,24 +8,20 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
+public class UnBan extends AdministrativeCommand{
 
-public class Ban extends AdministrativeCommand {
-
-    public Ban(){
+    public UnBan(){
         CommandHandler.addCommand(this);
     }
 
     @Override
     public String getExample() {
-        return "ban {ID/@USERNAME/TAG} <REASON>";
+        return "unban {ID}";
     }
 
     @Override
     public String getPurpose() {
-        return "Bans a user which removes them from the guild and stops them from joining back.";
+        return "Removes a ban from a user which allows them to join back after being banned.";
     }
 
     @Override
@@ -38,14 +34,8 @@ public class Ban extends AdministrativeCommand {
         Member author = e.getMember();
         boolean hasPermission = AdministrativeUtilities.checkPermissions(guildID, "ban", author, mentioned, Permission.BAN_MEMBERS);
         if (!hasPermission) return "You do not have permission to use this command.";
-
-        List<String> argsList = new LinkedList<>(Arrays.asList(args));
-        argsList.remove(0);
-        argsList.remove(0);
-        String reason = String.join(" ", argsList);
-
-        mentioned.ban(0, reason).queue();
-        return "Member has been banned";
+        guild.unban(mentioned).queue();
+        return "Member has been un-banned";
 
     }
 
