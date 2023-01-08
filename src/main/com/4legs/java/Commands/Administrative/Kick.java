@@ -44,8 +44,6 @@ public class Kick extends AdministrativeCommand{
         argsList.remove(0);
         String reason = String.join(" ", argsList);
 
-        guild.kick(mentioned).queue();
-
         guild.kick(mentioned, reason).queue();
         return "Member has been un-banned";
 
