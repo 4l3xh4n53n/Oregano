@@ -11,10 +11,11 @@ public class DatabaseConnector {
 
     private static final Logger log = LoggerFactory.getLogger(DatabaseConnector.class);
 
+
     /**
-     * Tells the program whether to connect to the test or production database , leave blank for production use TEST for test
+     * The databases host IP address
      */
-    private static final String test = "TEST";
+    private static final String databaseHost = System.getenv("DATABASEHOST");
 
     /**
      * Username for MariaDB user
@@ -33,7 +34,7 @@ public class DatabaseConnector {
     public static boolean isDatabaseOnline(){
         try {
             Class.forName ("org.mariadb.jdbc.Driver");
-            Connection con = DriverManager.getConnection("jdbc:mariadb://192.168.1.177:3306/Oregano" + test + "Settings", mariaUser, mariaPass);
+            Connection con = DriverManager.getConnection("jdbc:mariadb://"+ databaseHost + "/Settings", mariaUser, mariaPass); // Connecting to the Settings database to test connection
             if (con != null){
                 con.close();
                 return true;
@@ -52,7 +53,7 @@ public class DatabaseConnector {
     public static Connection connect(String database) {
         try {
             Class.forName ("org.mariadb.jdbc.Driver");
-            return DriverManager.getConnection("jdbc:mariadb://192.168.1.177:3306/Oregano" + test + database, mariaUser, mariaPass);
+            return DriverManager.getConnection("jdbc:mariadb://" + databaseHost + "/" + database, mariaUser, mariaPass);
         } catch (ClassNotFoundException | SQLException e) {
             log.error(e.fillInStackTrace().toString());
         }

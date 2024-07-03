@@ -38,10 +38,11 @@ public class CommandHandler extends ListenerAdapter {
                 if (clazz.getSuperclass() == null) continue; // has no super class
                 if (clazz.getSuperclass() == OreganoCommand.class) continue; // If super is OreganoCommand it is abstract class for the commands
 
-                Class<?>[] interfaces = clazz.getSuperclass().getInterfaces();
+                Class<?>[] interfaces = clazz.getSuperclass().getInterfaces(); // If super class interfaces oregano command it is a command class
 
                 if (Arrays.asList(interfaces).contains(OreganoCommand.class)){
                     clazz.getDeclaredConstructor().newInstance();
+                    // todo OreganoCommand command = (OreganoCommand) clazz.getDeclaredConstructor().newInstance();
                 }
 
             }

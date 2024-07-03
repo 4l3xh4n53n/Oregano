@@ -152,7 +152,14 @@ public class DatabaseSettingsManager {
        try {
            Connection con = Configurations.DatabaseConnector.connect("Settings");
            if (con == null) return;
-           PreparedStatement ps = con.prepareStatement("UPDATE features_config SET ban = ?, kick = ?, warn = ?, mute = ?, `purge` = ? WHERE guild_id = '" + guildID + "'");
+           PreparedStatement ps = con.prepareStatement("""
+                   UPDATE features_config SET
+                   ban = ?,
+                   kick = ?,
+                   warn = ?,
+                   mute = ?,
+                   `purge` = ?
+                   WHERE guild_id = '""" + guildID + "'");
            ps.setBoolean(1, value.get("ban"));
            ps.setBoolean(2, value.get("kick"));
            ps.setBoolean(3, value.get("warn"));
@@ -186,7 +193,7 @@ public class DatabaseSettingsManager {
             rs.next();
 
             for (int i = 1; rs.getMetaData().getColumnCount() > i; i++) {
-                String key = rs.getMetaData().getColumnName(i + 1);
+                String key = rs.getMetaData().getColumnName(i + 1).replace("`", "");
                 boolean value = rs.getBoolean(i + 1);
                 row.put(key, value);
             }
@@ -286,7 +293,7 @@ public class DatabaseSettingsManager {
             rs.next();
 
             for (int i = 1; rs.getMetaData().getColumnCount() > i; i++) {
-                String key = rs.getMetaData().getColumnName(i + 1);
+                String key = rs.getMetaData().getColumnName(i + 1).replace("`", "");
                 Object value;
                 if (key.endsWith("_use_role")){
                     value = rs.getBoolean(i + 1);

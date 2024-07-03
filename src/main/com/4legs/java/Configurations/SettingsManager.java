@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
+import java.util.stream.Stream;
 
 public class SettingsManager {
 
@@ -20,8 +21,8 @@ public class SettingsManager {
 
             log.debug("Getting settings for guild: {}", guildID);
 
-            String prefixe = DatabaseSettingsManager.getGuildPrefix(guildID);
-            prefixes.put(guildID, prefixe);
+            String prefix = DatabaseSettingsManager.getGuildPrefix(guildID);
+            prefixes.put(guildID, prefix);
 
             Map<String, Boolean> features = DatabaseSettingsManager.getConfiguration(guildID);
             featuresConfiguration.put(guildID, features);
@@ -101,13 +102,24 @@ public class SettingsManager {
     }
 
     /**
+     * Returns a list of features that the bot has
+     * @return Array of feature names
+     */
+    public static String[] getFeatures(){
+        Map<String, Boolean> featuresConfig = featuresConfiguration.values().iterator().next();
+        Stream<String> features = featuresConfig.keySet().stream();
+        return features.toArray(String[]::new);
+    }
+
+    /**
      * Tells you if a feature is turned on or off
      * @param guildID The ID of the guild
      * @param setting The setting that is needed
      * @return boolean True or False depending on whether the feature is on or off
      */
-    public static boolean featureIsEnabled(String guildID, String setting){
+    public static Boolean featureIsEnabled(String guildID, String setting){
         Map<String, Boolean> config = featuresConfiguration.get(guildID);
+        if (!config.containsKey(setting)) return null;
         return config.get(setting);
     }
 
@@ -127,13 +139,18 @@ public class SettingsManager {
 
     }
 
+    /* todo if getAdministrativeRoles was just getRoles it would be much easier, like how getFeatures is just get features
+    command uses permissions should be it's own separate database
+    roles database can just be it's own thing
+     */
+
     /**
      * Gets an administrative based setting
      * @param guildID The ID of the guild
      * @param setting Roles that need to be gotten (should only pass the command name e.g. ban)
      * @return Returns an array of role IDs
      */
-    public static String[] getAdministrativeRoles(String guildID, String setting) {
+    public static String[] getAdministrativeRoles(String guildID, String setting) { // todo change to get roles
 
         Map<String, Object> config = administrativeConfiguration.get(guildID);
         Object object = config.get(setting + "_roles");
@@ -149,7 +166,7 @@ public class SettingsManager {
      * @param setting The command (do NOT use warn since there is no discord built in permissions for this)
      * @return boolean True if it uses roles False if it uses discords built in permissions
      */
-    public static boolean administrativeCommandUsesRoles(String guildID, String setting){
+    public static boolean administrativeCommandUsesRoles(String guildID, String setting){ // todo change to usesPermissions
 
         Map<String, Object> config = administrativeConfiguration.get(guildID);
         Object object = config.get(setting + "_use_role");
@@ -164,7 +181,7 @@ public class SettingsManager {
      * @param setting The setting that is going to be changed
      * @param value What the setting is being set to
      */
-    public static void setAdministrativeSetting(String guildID, String setting, Object value){
+    public static void setAdministrativeSetting(String guildID, String setting, Object value){ // todo split into two methods setRole and setUsePermission
 
         Map<String, Object> config = administrativeConfiguration.get(guildID);
         config.put(setting, value);
