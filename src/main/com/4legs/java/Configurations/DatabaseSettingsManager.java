@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.sql.*;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -12,7 +13,7 @@ public class DatabaseSettingsManager {
     private static final Logger log = LoggerFactory.getLogger(DatabaseSettingsManager.class);
 
     /**
-     * Creates a new entry into database table
+     * Creates a new entry into database table with default values
      * @param guildID The ID of the guild being added to the configuration
      * @param table The table that the guild is being added to
      */
@@ -31,7 +32,7 @@ public class DatabaseSettingsManager {
     }
 
     /**
-     * Checks if a guilds row in table exists, if it doesn't it creates one
+     * Checks if a guilds row in table exists, if settings don't exist it runs createNewSettings
      * @param guildID The ID of the guild to be checked
      */
     private static void checkIfSettingsExist(String guildID, String table){
@@ -69,7 +70,6 @@ public class DatabaseSettingsManager {
 
     /**
      * Changes the values inside the database ( should only be called every 30 minutes )
-     *
      * NOTE:
      * checkIfSettingsExist() should NOT need to be called because this should only be called for servers which already have settings
      *
@@ -140,7 +140,6 @@ public class DatabaseSettingsManager {
 
     /**
      * Changes the values inside the database ( should only be called every 30 minutes )
-     *
      * NOTE:
      * checkIfSettingsExist() should NOT need to be called because this should only be called for servers which already have settings
      *
@@ -154,10 +153,10 @@ public class DatabaseSettingsManager {
            if (con == null) return;
            PreparedStatement ps = con.prepareStatement("""
                    UPDATE features_config SET
-                   ban = ?,
-                   kick = ?,
-                   warn = ?,
-                   mute = ?,
+                   `ban` = ?,
+                   `kick` = ?,
+                   `warn` = ?,
+                   `mute` = ?,
                    `purge` = ?
                    WHERE guild_id = '""" + guildID + "'");
            ps.setBoolean(1, value.get("ban"));
@@ -211,6 +210,169 @@ public class DatabaseSettingsManager {
     }
 
     /*
+        roles ( table that stores the required roles for each feature )
+
+        +----------+------+---------+
+        | Field    | Type | Default |
+        +----------+------+---------+
+        | guild_id | text | NULL    |
+        | ban      | text | ''      |
+        | kick     | text | ''      |
+        | mute     | text | ''      |
+        | purge    | text | ''      |
+        | warn     | text | ''      |
+        +----------+------+---------+
+
+     */
+
+    /**
+     * Returns the roles that each feature requires to be run
+     * @param guildID The ID of the guild that you want settings for
+     * @return Map of String[] for each feature's roles
+     */
+    public static Map<String, String[]> getRoles(String guildID) {
+        Map<String, String[]> row = new HashMap<>();
+        checkIfSettingsExist(guildID, "roles");
+
+        try {
+            Connection con = Configurations.DatabaseConnector.connect("Settings");
+            if (con == null) return null;
+            Statement st = con.createStatement();
+            ResultSet rs = st.executeQuery("SELECT * FROM roles WHERE guild_id = '" + guildID + "'");
+            rs.next();
+
+            for (int i = 1; rs.getMetaData().getColumnCount() > i; i++) {
+                String key = rs.getMetaData().getColumnName(i + 1);
+                row.put(key, rs.getString(i + 1).split(","));
+            }
+
+            rs.close();
+            st.close();
+            con.close();
+
+        } catch (SQLException e){
+            log.error(e.getMessage() + " ; VARIABLES: guildID {}", guildID);
+        }
+
+        return row;
+    }
+
+    /**
+     * Changes the list of role IDs stored in the database
+     * @param guildID The ID of the guild that you want to change settings for
+     * @param value The new settings
+     */
+    public static void editRoles(String guildID, Map<String, String[]> value) {
+
+        StringBuilder statement = new StringBuilder("UPDATE roles SET ");
+
+        for (String key : value.keySet()) {
+            statement.append("`").append(key).append("` = ?, ");
+        }
+        statement = new StringBuilder(statement.substring(0, statement.length() - 2));
+        statement.append(" WHERE guild_id = '").append(guildID).append("'");
+
+        try {
+            Connection con = DatabaseConnector.connect("Settings");
+            if (con == null) return;
+            PreparedStatement ps = con.prepareStatement(statement.toString());
+
+            String[][] values = value.values().toArray(new String[0][0]);
+
+            for (int i = 1; i <= values.length; i++) {
+                ps.setString(i, Arrays.toString(values[i-1]).replace("[", "").replace("]", ""));
+            }
+
+            ps.executeUpdate();
+            ps.close();
+            con.close();
+        } catch (SQLException e) {
+            log.error(e.getMessage() + " ; VARIABLES: guildID: {} value: {}", guildID, value);
+        }
+
+    }
+
+    /*
+        use_permissions ( says whether the command uses Discord's built-in permissions or roles )
+
+        +----------+------------+---------+
+        | Field    | Type       | Default |
+        +----------+------------+---------+
+        | guild_id | text       | NULL    |
+        | ban      | tinyint(1) | 0       |
+        | kick     | tinyint(1) | 0       |
+        | mute     | tinyint(1) | 0       |
+        | purge    | tinyint(1) | 0       |
+        +----------+------------+---------+
+
+     */
+
+    /**
+     * Returns the configuration for which commands use Discord's built-in permissions from the database
+     * @param guildID The ID of the guild that you want settings for
+     * @return Map of Booleans for each feature that supports built in permissions
+     */
+    public static Map<String, Boolean> getCommandUsesPermissions(String guildID) {
+        Map<String, Boolean> row = new HashMap<>();
+        checkIfSettingsExist(guildID, "use_permissions");
+
+        try {
+            Connection con = Configurations.DatabaseConnector.connect("Settings");
+            if (con == null) return null;
+            Statement st = con.createStatement();
+            ResultSet rs = st.executeQuery("SELECT * FROM use_permissions WHERE guild_id = '" + guildID + "'");
+            rs.next();
+
+            for (int i = 1; rs.getMetaData().getColumnCount() > i; i++) {
+                String key = rs.getMetaData().getColumnName(i + 1);
+                row.put(key, rs.getBoolean(i + 1));
+            }
+
+            rs.close();
+            st.close();
+            con.close();
+
+        } catch (SQLException e){
+            log.error(e.getMessage() + " ; VARIABLES: guildID {}", guildID);
+        }
+
+        return row;
+    }
+
+    /**
+     * Changes the values for whether the command will use Discord's built-in permissions
+     * @param guildID The ID of the guild that you want to change settings for
+     * @param value The new settings
+     */
+    public static void editCommandUsesPermissions(String guildID, Map<String, Boolean> value){
+
+        StringBuilder statement = new StringBuilder("UPDATE use_permissions SET ");
+
+        for (Map.Entry<String, Boolean> entry : value.entrySet()) {
+            statement.append("`").append(entry.getKey()).append("` = ?, ");
+        }
+        statement = new StringBuilder(statement.substring(0, statement.length() - 2));
+        statement.append(" WHERE guild_id = '").append(guildID).append("'");
+
+        try {
+            Connection con = DatabaseConnector.connect("Settings");
+            if (con == null) return;
+            PreparedStatement ps = con.prepareStatement(statement.toString());
+
+            for (int i = 1; i <= value.size(); i++) {
+                ps.setBoolean(i, (Boolean) value.values().toArray()[i-1]);
+            }
+
+            ps.executeUpdate();
+            ps.close();
+            con.close();
+        } catch (SQLException e) {
+            log.error(e.getMessage() + " ; VARIABLES: guildID: {} value: {}", guildID, value);
+        }
+
+    }
+
+    /*
 
       administrative_config ( the table for configurations of the ADMINISTRATIVE commands )
 
@@ -233,13 +395,13 @@ public class DatabaseSettingsManager {
 
     /**
      * Changes the values inside the database ( should only be called every 30 minutes )
-     *
      * NOTE:
      * checkIfSettingsExist() should NOT need to be called because this should only be called for servers which already have settings
      *
      * @param guildID The ID of the guild that is being backed up
      * @param value The new configuration
      */
+    @Deprecated
     public static void editAdministrativeConfiguration(String guildID, Map<String, Object> value){
 
         try {
@@ -280,6 +442,7 @@ public class DatabaseSettingsManager {
      * @param guildID The ID of the guild that needs administrative configurations
      * @return Map String, Object (boolean and String) which contains the configuration
      */
+    @Deprecated
     public static Map<String, Object> getAdministrativeConfiguration(String guildID){
 
         Map<String, Object> row = new HashMap<>();
