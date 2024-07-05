@@ -29,6 +29,11 @@ public class Kick extends AdministrativeCommand{
     }
 
     @Override
+    public Permission getBuiltInPermission(){
+        return Permission.KICK_MEMBERS;
+    }
+
+    @Override
     public String onCommand(MessageReceivedEvent e, Message message, Guild guild, String guildID, String[] args){
 
         if (!SettingsManager.featureIsEnabled(guildID, "kick")) return null;

@@ -25,6 +25,11 @@ public class UnMute extends AdministrativeCommand {
     }
 
     @Override
+    public Permission getBuiltInPermission(){
+        return null; // todo change to time out
+    }
+
+    @Override
     public String onCommand(MessageReceivedEvent e, Message message, Guild guild, String guildID, String[] args) {
 
         if (!SettingsManager.featureIsEnabled(guildID, "mute")) return null;

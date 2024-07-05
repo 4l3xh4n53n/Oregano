@@ -1,5 +1,6 @@
 package Commands;
 
+import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -26,6 +27,12 @@ public interface OreganoCommand {
      * @return String ( Command Information )
      */
     String getPurpose();
+
+    /**
+     * Returns Discord's built-in permission for the command
+     * @return Permission
+     */
+    Permission getBuiltInPermission();
 
     /**
      * Executes the command

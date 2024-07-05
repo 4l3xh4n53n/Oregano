@@ -25,6 +25,11 @@ public class Purge extends AdministrativeCommand{
     }
 
     @Override
+    public Permission getBuiltInPermission(){
+        return Permission.MESSAGE_MANAGE;
+    }
+
+    @Override
     public String onCommand(MessageReceivedEvent e, Message message, Guild guild, String guildID, String[] args){
 
         if (!SettingsManager.featureIsEnabled(guildID, "purge")) return null;

@@ -2,6 +2,7 @@ package Commands.Settings;
 
 import Commands.CommandType;
 import Commands.OreganoCommand;
+import net.dv8tion.jda.api.Permission;
 
 public abstract class SettingsCommand implements OreganoCommand {
 
@@ -10,6 +11,11 @@ public abstract class SettingsCommand implements OreganoCommand {
     @Override
     public CommandType getType() {
         return type;
+    }
+
+    @Override
+    public Permission getBuiltInPermission(){
+        return Permission.ADMINISTRATOR;
     }
 
 }

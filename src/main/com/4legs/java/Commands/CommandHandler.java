@@ -102,4 +102,13 @@ public class CommandHandler extends ListenerAdapter {
 
     }
 
+    /**
+     * Gets the command, useful for accessing data such as command purpose, builtInPermissions, etc
+     * @param commandName The name of the command you want to get
+     * @return OreganoCommand
+     */
+    public static OreganoCommand getCommandByName(String commandName){
+        return commands.get(commandName);
+    }
+
 }

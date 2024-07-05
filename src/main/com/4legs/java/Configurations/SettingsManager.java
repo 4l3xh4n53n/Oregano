@@ -168,6 +168,7 @@ public class SettingsManager {
      */
     public static boolean commandUsesPermissions(String guildID, String setting) {
         Map<String, Boolean> config = usesPermissions.get(guildID);
+        if (!config.containsKey(setting)) return false; // if key doesn't exist setting doesn't support built-in commands
         return config.get(setting);
     }
 

@@ -29,6 +29,11 @@ public class Ban extends AdministrativeCommand {
     }
 
     @Override
+    public Permission getBuiltInPermission(){
+        return Permission.BAN_MEMBERS;
+    }
+
+    @Override
     public String onCommand(MessageReceivedEvent e, Message message, Guild guild, String guildID, String[] args){
 
         if (!SettingsManager.featureIsEnabled(guildID, "ban")) return null;

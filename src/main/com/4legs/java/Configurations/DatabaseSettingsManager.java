@@ -243,7 +243,11 @@ public class DatabaseSettingsManager {
 
             for (int i = 1; rs.getMetaData().getColumnCount() > i; i++) {
                 String key = rs.getMetaData().getColumnName(i + 1);
-                row.put(key, rs.getString(i + 1).split(","));
+
+                String value =  rs.getString(i + 1);
+                if (value.isEmpty()) row.put(key, new String[0]); // Make an empty array if it's empty
+                else row.put(key, value.split(",")); // Otherwise this will make an array with 1 empty string
+
             }
 
             rs.close();
