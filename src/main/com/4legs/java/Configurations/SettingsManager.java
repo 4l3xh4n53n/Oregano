@@ -12,10 +12,10 @@ public class SettingsManager {
 
     private static final Logger log = LoggerFactory.getLogger(SettingsManager.class);
 
-    public static void loadSettings(JDA jda){
+    public static void loadSettings(JDA jda) {
         List<Guild> guilds = jda.getGuilds();
 
-        for (Guild guild : guilds){
+        for (Guild guild : guilds) {
 
             String guildID = guild.getId();
 
@@ -27,8 +27,11 @@ public class SettingsManager {
             Map<String, Boolean> features = DatabaseSettingsManager.getConfiguration(guildID);
             featuresConfiguration.put(guildID, features);
 
-            Map<String, Object> administrative = DatabaseSettingsManager.getAdministrativeConfiguration(guildID);
-            administrativeConfiguration.put(guildID, administrative);
+            Map<String, Boolean> commandUsesPermissions = DatabaseSettingsManager.getCommandUsesPermissions(guildID);
+            usesPermissions.put(guildID, commandUsesPermissions);
+
+            Map<String, String[]> commandRequiredRoles = DatabaseSettingsManager.getRoles(guildID);
+            requiredRoles.put(guildID, commandRequiredRoles);
 
         }
 
@@ -37,32 +40,44 @@ public class SettingsManager {
     /**
      * Backs up the MariaDB database every 30 minutes
      */
-    public static void startBackupTimer(){
+    public static void startBackupTimer() {
         Timer timer = new Timer();
 
-        timer.schedule( new TimerTask() {
+        timer.schedule(new TimerTask() {
             public void run() {
 
-                log.info("Running MariaDB backup on {} guilds and {} administrativeConfigs", updatedGuilds.size(), updatedAdministrativeConfigs.size());
+                log.info("Running MariaDB backup on {} prefixes {} guilds {} permissions and {} roles",
+                        updatedPrefixes.size(),
+                        updatedFeatures.size(),
+                        updatedUsesPermissions.size(),
+                        updatedRequiredRoles.size());
 
-                for (String key : updatedPrefixes){
-                    DatabaseSettingsManager.setGuildPrefix(key, prefixes.get(key));
+                for (String guildID : updatedPrefixes) {
+                    DatabaseSettingsManager.setGuildPrefix(guildID, prefixes.get(guildID));
                 }
 
-                for (String key : updatedGuilds){
-                    DatabaseSettingsManager.editConfiguration(key, featuresConfiguration.get(key));
+                updatedPrefixes.clear();
+
+                for (String guildID : updatedFeatures) {
+                    DatabaseSettingsManager.editConfiguration(guildID, featuresConfiguration.get(guildID));
                 }
 
-                updatedGuilds.clear();
+                updatedFeatures.clear();
 
-                for (String key : updatedAdministrativeConfigs){
-                    DatabaseSettingsManager.editAdministrativeConfiguration(key, administrativeConfiguration.get(key));
+                for (String guildID : updatedUsesPermissions) {
+                    DatabaseSettingsManager.editCommandUsesPermissions(guildID, usesPermissions.get(guildID));
                 }
 
-                updatedAdministrativeConfigs.clear();
+                updatedUsesPermissions.clear();
+
+                for (String guildID : updatedRequiredRoles) {
+                    DatabaseSettingsManager.editRoles(guildID, requiredRoles.get(guildID));
+                }
+
+                updatedRequiredRoles.clear();
 
             }
-        }, 0, 108000000 ); // 30 minutes
+        }, 0, 108000000); // 30 minutes
     }
 
     /*
@@ -72,40 +87,45 @@ public class SettingsManager {
      * Array takes in a key or the guildsID
      */
     private static final List<String> updatedPrefixes = new ArrayList<>();
-    private static final List<String> updatedGuilds = new ArrayList<>();
-    private static final List<String> updatedAdministrativeConfigs = new ArrayList<>();
+    private static final List<String> updatedFeatures = new ArrayList<>();
+    private static final List<String> updatedUsesPermissions = new ArrayList<>();
+    private static final List<String> updatedRequiredRoles = new ArrayList<>();
 
     /*
      * See DatabaseSettingsManager for database tables
      */
     private final static HashMap<String, String> prefixes = new HashMap<>();
     private final static HashMap<String, Map<String, Boolean>> featuresConfiguration = new HashMap<>();
-    private final static HashMap<String, Map<String, Object>> administrativeConfiguration = new HashMap<>();
+    private final static HashMap<String, Map<String, String[]>> requiredRoles = new HashMap<>();
+    private final static HashMap<String, Map<String, Boolean>> usesPermissions = new HashMap<>();
 
     /**
      * Gets the prefix that a guild uses
+     *
      * @param guildID The ID of the guild
      * @return String the guilds prefix
      */
-    public static String getGuildsPrefix(String guildID){
+    public static String getGuildsPrefix(String guildID) {
         return prefixes.get(guildID);
     }
 
     /**
      * Changes the prefix that a guild uses
+     *
      * @param guildID The ID of the guild
-     * @param value The new prefix
+     * @param value   The new prefix
      */
-    public static void setGuildsPrefix(String guildID, String value){
+    public static void setGuildsPrefix(String guildID, String value) {
         prefixes.put(guildID, value);
         updatedPrefixes.add(guildID);
     }
 
     /**
      * Returns a list of features that the bot has
+     *
      * @return Array of feature names
      */
-    public static String[] getFeatures(){
+    public static String[] getFeatures() {
         Map<String, Boolean> featuresConfig = featuresConfiguration.values().iterator().next();
         Stream<String> features = featuresConfig.keySet().stream();
         return features.toArray(String[]::new);
@@ -113,11 +133,12 @@ public class SettingsManager {
 
     /**
      * Tells you if a feature is turned on or off
+     *
      * @param guildID The ID of the guild
      * @param setting The setting that is needed
      * @return boolean True or False depending on whether the feature is on or off
      */
-    public static Boolean featureIsEnabled(String guildID, String setting){
+    public static Boolean featureIsEnabled(String guildID, String setting) {
         Map<String, Boolean> config = featuresConfiguration.get(guildID);
         if (!config.containsKey(setting)) return null;
         return config.get(setting);
@@ -125,69 +146,64 @@ public class SettingsManager {
 
     /**
      * Changes the settings for a guild
+     *
      * @param guildID The ID of the guild
      * @param setting The setting that is going to be changed
-     * @param value boolean True or False depending on whether the feature is being turned on or off
+     * @param value   boolean True or False depending on whether the feature is being turned on or off
      */
-    public static void setGuildsFeature(String guildID, String setting, boolean value){
-
+    public static void setGuildsFeature(String guildID, String setting, boolean value) {
         Map<String, Boolean> config = featuresConfiguration.get(guildID);
         config.put(setting, value);
         featuresConfiguration.put(guildID, config);
 
-        updatedGuilds.add(guildID);
-
+        updatedFeatures.add(guildID);
     }
 
-    /* todo if getAdministrativeRoles was just getRoles it would be much easier, like how getFeatures is just get features
-    command uses permissions should be it's own separate database
-    roles database can just be it's own thing
-     */
-
     /**
-     * Gets an administrative based setting
+     * Says whether the command is configured to use Discord's built-in permissions
+     *
      * @param guildID The ID of the guild
-     * @param setting Roles that need to be gotten (should only pass the command name e.g. ban)
-     * @return Returns an array of role IDs
+     * @param setting The setting that is being checked
+     * @return true if command uses built-in permissions, false if it uses custom roles
      */
-    public static String[] getAdministrativeRoles(String guildID, String setting) { // todo change to get roles
-
-        Map<String, Object> config = administrativeConfiguration.get(guildID);
-        Object object = config.get(setting + "_roles");
-        if (object.getClass() == Boolean.class) return null; // error checking
-        String string = (String) object;
-        return string.split(",");
-
+    public static boolean commandUsesPermissions(String guildID, String setting) {
+        Map<String, Boolean> config = usesPermissions.get(guildID);
+        return config.get(setting);
     }
 
-    /**
-     * Checks if a command is using roles or discords built in permissions
-     * @param guildID The ID of the guild
-     * @param setting The command (do NOT use warn since there is no discord built in permissions for this)
-     * @return boolean True if it uses roles False if it uses discords built in permissions
-     */
-    public static boolean administrativeCommandUsesRoles(String guildID, String setting){ // todo change to usesPermissions
-
-        Map<String, Object> config = administrativeConfiguration.get(guildID);
-        Object object = config.get(setting + "_use_role");
-        if (object.getClass() == String.class) return true; // error checking
-        return (boolean) object;
-
-    }
-
-    /**
-     * Changes the setting for an administrative command
-     * @param guildID The guilds ID
-     * @param setting The setting that is going to be changed
-     * @param value What the setting is being set to
-     */
-    public static void setAdministrativeSetting(String guildID, String setting, Object value){ // todo split into two methods setRole and setUsePermission
-
-        Map<String, Object> config = administrativeConfiguration.get(guildID);
+    public static void setCommandUsesPermission(String guildID, String setting, boolean value) {
+        Map<String, Boolean> config = usesPermissions.get(guildID);
         config.put(setting, value);
-        administrativeConfiguration.put(guildID, config);
-        updatedAdministrativeConfigs.add(guildID);
+        usesPermissions.put(guildID, config);
 
+        updatedUsesPermissions.add(guildID);
+    }
+
+    /**
+     * Returns a list of role ID's that can use a certain feature
+     *
+     * @param guildID The ID of the guild
+     * @param setting The setting that requires roles
+     * @return String[] of role ID's
+     */
+    public static String[] getRequiredRoles(String guildID, String setting) {
+        Map<String, String[]> config = requiredRoles.get(guildID);
+        return config.get(setting);
+    }
+
+    /**
+     * Changes the required roles for a feature
+     *
+     * @param guildID The guilds ID that you want to change required roles for
+     * @param setting The feature name that you want to change required roles for
+     * @param value   A String[] of role ID's
+     */
+    public static void setRequiredRoles(String guildID, String setting, String[] value) {
+        Map<String, String[]> config = requiredRoles.get(guildID);
+        config.put(setting, value);
+        requiredRoles.put(guildID, config);
+
+        updatedRequiredRoles.add(guildID);
     }
 
 }

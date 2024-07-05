@@ -100,29 +100,11 @@ public class AdministrativeUtilities {
      */
     public static boolean checkPermissions(String guildID, String setting, Member author, Member mentioned, Permission requiredPermission){
 
-        boolean authorHasPermission = false;
-
-        if (SettingsManager.administrativeCommandUsesRoles(guildID, setting)){
-
-            // Discord roles based authorization
-
-            String[] requiredRoles = SettingsManager.getAdministrativeRoles(guildID, setting);
-
-            if (CollectionUtils.containsAny(Arrays.asList(requiredRoles), getIDsFromRoles(author.getRoles()))){
-                authorHasPermission = true;
-            }
-        } else {
-
-            // Discord permissions based authorization
-
-            EnumSet<Permission> authorPermissions = author.getPermissions();
-
-            if (authorPermissions.contains(requiredPermission) || authorPermissions.contains(Permission.ADMINISTRATOR)){
-                authorHasPermission = true;
-            }
-        }
+        boolean authorHasPermission = checkPermissions(guildID, setting, author, requiredPermission);
 
         if (!authorHasPermission) return false;
+
+        // Make sure the command author is higher than command target
 
         List<Role> mentionedRoles = mentioned.getRoles();
         List<Role> authorRoles = author.getRoles();
@@ -138,7 +120,7 @@ public class AdministrativeUtilities {
     }
 
     /**
-     * Makes sure that the command author has the correct roles and is higher in the role hierarchy than the member they are issuing the command for
+     * Makes sure that the command author has the correct roles
      * @param guildID The guilds ID
      * @param setting The setting that has to be checked, usually the name of the command
      * @param author The person who sent the command
@@ -149,16 +131,7 @@ public class AdministrativeUtilities {
 
         boolean authorHasPermission = false;
 
-        if (SettingsManager.administrativeCommandUsesRoles(guildID, setting)){
-
-            // Discord roles based authorization
-
-            String[] requiredRoles = SettingsManager.getAdministrativeRoles(guildID, setting);
-
-            if (CollectionUtils.containsAny(Arrays.asList(requiredRoles), getIDsFromRoles(author.getRoles()))){
-                authorHasPermission = true;
-            }
-        } else {
+        if (SettingsManager.commandUsesPermissions(guildID, setting)){
 
             // Discord permissions based authorization
 
@@ -167,6 +140,17 @@ public class AdministrativeUtilities {
             if (authorPermissions.contains(requiredPermission) || authorPermissions.contains(Permission.ADMINISTRATOR)){
                 authorHasPermission = true;
             }
+
+        } else {
+
+            // Discord roles based authorization
+
+            String[] requiredRoles = SettingsManager.getRequiredRoles(guildID, setting);
+
+            if (CollectionUtils.containsAny(Arrays.asList(requiredRoles), getIDsFromRoles(author.getRoles()))){
+                authorHasPermission = true;
+            }
+
         }
 
         return authorHasPermission;
