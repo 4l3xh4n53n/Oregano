@@ -1,6 +1,5 @@
 package Commands.Administrative;
 
-import Commands.CommandHandler;
 import Configurations.SettingsManager;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
@@ -11,10 +10,6 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import java.time.Duration;
 
 public class Mute extends AdministrativeCommand{
-
-    public Mute(){
-            CommandHandler.addCommand(this);
-        }
 
     @Override
     public String getExample() {
@@ -36,12 +31,12 @@ public class Mute extends AdministrativeCommand{
 
         if (!SettingsManager.featureIsEnabled(guildID, "mute")) return null;
         if (args.length < 2) return "You have not included enough arguments to use this command.";
-        Member mentioned = AdministrativeUtilities.getMentioned(guild, message, args[0]);
+        Member mentioned = getMentioned(guild, message, args[0]);
         if (mentioned == null) return "Member cannot be found.";
         Member author = e.getMember();
-        boolean hasPermission = AdministrativeUtilities.checkPermissions(guildID, "mute", author, mentioned, Permission.MODERATE_MEMBERS);
+        boolean hasPermission = checkPermissions(guildID, "mute", author, mentioned, Permission.MODERATE_MEMBERS);
         if (!hasPermission) return "You do not have permission to use this command.";
-        int duration = AdministrativeUtilities.stringToInt(args[1]);
+        int duration = stringToInt(args[1]);
 
         mentioned.timeoutFor(Duration.ofMinutes(duration)).queue();
 

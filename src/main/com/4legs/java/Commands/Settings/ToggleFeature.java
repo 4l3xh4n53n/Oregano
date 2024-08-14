@@ -1,6 +1,5 @@
 package Commands.Settings;
 
-import Commands.CommandHandler;
 import Configurations.SettingsManager;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
@@ -9,10 +8,6 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 public class ToggleFeature extends SettingsCommand{
-
-    public ToggleFeature(){
-        CommandHandler.addCommand(this);
-    }
 
     @Override
     public String getExample() {
@@ -32,12 +27,10 @@ public class ToggleFeature extends SettingsCommand{
         if (!author.hasPermission(Permission.ADMINISTRATOR)) return "You do not have permission to run this command.";
 
         Boolean featureStatus = SettingsManager.featureIsEnabled(guildID, args[0]);
-
         if (featureStatus == null) return "Feature does not exist";
-
         SettingsManager.setGuildsFeature(guildID, args[0], !featureStatus);
 
-        return null;
+        return args[0] + " set to: " + !featureStatus;
 
     }
 

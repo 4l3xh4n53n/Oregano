@@ -1,6 +1,5 @@
 package Commands.Administrative;
 
-import Commands.CommandHandler;
 import Configurations.SettingsManager;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
@@ -13,10 +12,6 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class Ban extends AdministrativeCommand {
-
-    public Ban(){
-        CommandHandler.addCommand(this);
-    }
 
     @Override
     public String getExample() {
@@ -38,10 +33,10 @@ public class Ban extends AdministrativeCommand {
 
         if (!SettingsManager.featureIsEnabled(guildID, "ban")) return null;
         if (args.length < 1) return "You have not included enough arguments to use this command.";
-        Member mentioned = AdministrativeUtilities.getMentioned(guild, message, args[0]);
+        Member mentioned = getMentioned(guild, message, args[0]);
         if (mentioned == null) return "Member cannot be found.";
         Member author = e.getMember();
-        boolean hasPermission = AdministrativeUtilities.checkPermissions(guildID, "ban", author, mentioned, Permission.BAN_MEMBERS);
+        boolean hasPermission = checkPermissions(guildID, "ban", author, mentioned, Permission.BAN_MEMBERS);
         if (!hasPermission) return "You do not have permission to use this command.";
 
         List<String> argsList = new LinkedList<>(Arrays.asList(args));

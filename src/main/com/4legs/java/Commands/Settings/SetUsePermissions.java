@@ -13,9 +13,6 @@ import java.util.Locale;
 
 public class SetUsePermissions extends SettingsCommand {
 
-    public SetUsePermissions() {
-        CommandHandler.addCommand(this);
-    }
     @Override
     public String getExample() {
         return "setusepermissions {feature name} {true/false or 1/0}";

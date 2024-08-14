@@ -41,26 +41,16 @@ public class CommandHandler extends ListenerAdapter {
                 Class<?>[] interfaces = clazz.getSuperclass().getInterfaces(); // If super class interfaces oregano command it is a command class
 
                 if (Arrays.asList(interfaces).contains(OreganoCommand.class)){
-                    clazz.getDeclaredConstructor().newInstance();
-                    // todo OreganoCommand command = (OreganoCommand) clazz.getDeclaredConstructor().newInstance();
+                    OreganoCommand command = (OreganoCommand) clazz.getDeclaredConstructor().newInstance();
+                    String name = command.getClass().getSimpleName().toLowerCase(Locale.ROOT);
+                    commands.put(name, command);
+                    log.info("Added command: {}", name);
                 }
 
             }
         } catch (Exception e){
             log.warn(e.getMessage());
         }
-
-    }
-
-    /**
-     * Allows you to add a command to the commands HashMap
-     * @param command Command being added to HashMap
-     */
-    public static void addCommand(OreganoCommand command){
-
-        String name = command.getClass().getSimpleName().toLowerCase(Locale.ROOT);
-        commands.put(name, command);
-        log.info("Added command: {}", name);
 
     }
 
@@ -93,10 +83,10 @@ public class CommandHandler extends ListenerAdapter {
         if (commands.containsKey(commandWord)){
 
             String response = commands.get(commandWord).onCommand(e, message, guild, guildID, args);
-
             if (response == null) return;
-
-            e.getChannel().sendMessage(response).queue();
+            if (e.getChannel().canTalk()) {
+                e.getChannel().sendMessage(response).queue();
+            }
 
         }
 

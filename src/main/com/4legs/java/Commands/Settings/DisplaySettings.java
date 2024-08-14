@@ -15,10 +15,6 @@ import java.util.Locale;
 
 public class DisplaySettings extends SettingsCommand {
 
-    public DisplaySettings(){
-        CommandHandler.addCommand(this);
-    }
-
     @Override
     public String getExample() {
         return "displaysettings Opt{ROLES} Opt{CommandType} ...";

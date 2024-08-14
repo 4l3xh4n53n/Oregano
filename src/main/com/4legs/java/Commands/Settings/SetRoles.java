@@ -1,6 +1,5 @@
 package Commands.Settings;
 
-import Commands.CommandHandler;
 import Configurations.SettingsManager;
 import Main.Utilities;
 import net.dv8tion.jda.api.Permission;
@@ -16,9 +15,6 @@ import java.util.Locale;
 
 public class SetRoles extends SettingsCommand {
 
-    public SetRoles(){
-        CommandHandler.addCommand(this);
-    }
     @Override
     public String getExample() {
         return "setroles warn {@role or roleID} ...";

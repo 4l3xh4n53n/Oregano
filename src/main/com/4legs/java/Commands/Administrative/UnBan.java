@@ -1,6 +1,5 @@
 package Commands.Administrative;
 
-import Commands.CommandHandler;
 import Configurations.SettingsManager;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
@@ -9,10 +8,6 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 public class UnBan extends AdministrativeCommand{
-
-    public UnBan(){
-        CommandHandler.addCommand(this);
-    }
 
     @Override
     public String getExample() {
@@ -34,10 +29,10 @@ public class UnBan extends AdministrativeCommand{
 
         if (!SettingsManager.featureIsEnabled(guildID, "ban")) return null;
         if (args.length < 1) return "You have not included enough arguments to use this command.";
-        Member mentioned = AdministrativeUtilities.getMentioned(guild, message, args[0]);
+        Member mentioned = getMentioned(guild, message, args[0]);
         if (mentioned == null) return "Member cannot be found.";
         Member author = e.getMember();
-        boolean hasPermission = AdministrativeUtilities.checkPermissions(guildID, "ban", author, mentioned, Permission.BAN_MEMBERS);
+        boolean hasPermission = checkPermissions(guildID, "ban", author, mentioned, Permission.BAN_MEMBERS);
         if (!hasPermission) return "You do not have permission to use this command.";
         guild.unban(mentioned).queue();
         return "Member has been un-banned";

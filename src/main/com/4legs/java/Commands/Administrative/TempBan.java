@@ -1,6 +1,5 @@
 package Commands.Administrative;
 
-import Commands.CommandHandler;
 import Configurations.SettingsManager;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
@@ -13,10 +12,6 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class TempBan extends AdministrativeCommand{
-
-    public TempBan() {
-        CommandHandler.addCommand(this);
-    }
 
     @Override
     public String getExample() {
@@ -38,12 +33,12 @@ public class TempBan extends AdministrativeCommand{
 
         if (!SettingsManager.featureIsEnabled(guildID, "ban")) return null;
         if (args.length < 2) return "You have not included enough arguments to use this command.";
-        Member mentioned = AdministrativeUtilities.getMentioned(guild, message, args[0]);
+        Member mentioned = getMentioned(guild, message, args[0]);
         if (mentioned == null) return "Member cannot be found.";
         Member author = e.getMember();
-        boolean hasPermission = AdministrativeUtilities.checkPermissions(guildID, "ban", author, mentioned, Permission.BAN_MEMBERS);
+        boolean hasPermission = checkPermissions(guildID, "ban", author, mentioned, Permission.BAN_MEMBERS);
         if (!hasPermission) return "You do not have permission to use this command.";
-        int length = AdministrativeUtilities.stringToInt(args[1]);
+        int length = stringToInt(args[1]);
         if (length < 0) return "Ban duration is invalid.";
 
         List<String> argsList = new LinkedList<>(Arrays.asList(args));
