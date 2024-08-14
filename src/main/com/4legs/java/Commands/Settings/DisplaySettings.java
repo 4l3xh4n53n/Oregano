@@ -1,6 +1,5 @@
 package Commands.Settings;
 
-import Commands.Administrative.AdministrativeCommand;
 import Commands.CommandHandler;
 import Commands.CommandType;
 import Configurations.SettingsManager;
@@ -15,7 +14,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
-public class DisplaySettings extends AdministrativeCommand {
+public class DisplaySettings extends SettingsCommand {
 
     public DisplaySettings(){
         CommandHandler.addCommand(this);
