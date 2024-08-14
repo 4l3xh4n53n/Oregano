@@ -12,6 +12,7 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public class SetRoles extends SettingsCommand {
 
@@ -20,26 +21,21 @@ public class SetRoles extends SettingsCommand {
     }
     @Override
     public String getExample() {
-        return null;
+        return "setroles warn {@role or roleID} ...";
     }
 
     @Override
     public String getPurpose() {
-        return null;
-    }
-
-    @Override
-    public Permission getBuiltInPermission() {
-        return null;
+        return "Allows admins to allow members with certain roles to use certain features.";
     }
 
     @Override
     public String onCommand(MessageReceivedEvent e, Message message, Guild guild, String guildID, String[] args) {
-
         Member author = e.getMember();
         if (!author.hasPermission(Permission.ADMINISTRATOR)) return "You do not have permission to run this command.";
         if (args.length < 2) return "You have not included enough args for this command.";
-        String featureName = args[0];
+
+        String featureName = args[0].toLowerCase(Locale.ROOT);
         Boolean featureIsEnabled = SettingsManager.featureIsEnabled(guildID, featureName);
         if (featureIsEnabled == null) return "Feature does not exist";
 

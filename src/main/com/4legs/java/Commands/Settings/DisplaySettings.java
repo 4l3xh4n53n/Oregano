@@ -3,7 +3,6 @@ package Commands.Settings;
 import Commands.CommandHandler;
 import Commands.CommandType;
 import Configurations.SettingsManager;
-import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.Role;
@@ -22,17 +21,12 @@ public class DisplaySettings extends SettingsCommand {
 
     @Override
     public String getExample() {
-        return "displaysettings Opt{ROLES} Opt{CommandType/S}";
+        return "displaysettings Opt{ROLES} Opt{CommandType} ...";
     }
 
     @Override
     public String getPurpose() {
         return "Shows whether a setting is turned on or off. Optionally which permissions it requires.";
-    }
-
-    @Override
-    public Permission getBuiltInPermission(){
-        return Permission.BAN_MEMBERS;
     }
 
     private static String showRoles(String[] features, String guildID, Guild guild, boolean filtered, String[] filter) {
