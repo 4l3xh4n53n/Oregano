@@ -3,14 +3,13 @@ package Commands.Settings;
 import Commands.CommandHandler;
 import Commands.CommandType;
 import Configurations.SettingsManager;
+import Main.Utilities;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Locale;
 
 public class DisplaySettings extends SettingsCommand {
@@ -94,28 +93,6 @@ public class DisplaySettings extends SettingsCommand {
         return output.toString();
     }
 
-    private static String[][] createFilter(String[] args, int argStart) {
-        String[] expectedCommandTypes = Arrays.stream(CommandType.values()).map(Enum::name).toArray(String[]::new);
-        List<String> filter = new ArrayList<>(); // Filters display by command type
-        List<String> unknownFilterTypes = new ArrayList<>(); // Used to display invalid input from user
-
-        for (int i = argStart; i < args.length; i++) {
-
-            // Checks that argument is a valid type of feature, e.g. ADMINISTRATIVE,
-            String filterItem = args[i].toUpperCase();
-            if (Arrays.asList(expectedCommandTypes).contains(filterItem)) {
-                filter.add(filterItem);
-            } else {
-                unknownFilterTypes.add(filterItem);
-            }
-        }
-
-        String[] arrFilter = filter.toArray(String[]::new);
-        String[] arrUnknownFilterTypes = unknownFilterTypes.toArray(String[]::new);
-
-        return new String[][]{arrFilter, arrUnknownFilterTypes};
-    }
-
     @Override
     public String onCommand(MessageReceivedEvent e, Message message, Guild guild, String guildID, String[] args) {
         String[] features = SettingsManager.getFeatures();
@@ -131,7 +108,7 @@ public class DisplaySettings extends SettingsCommand {
                     result = showRoles(features, guildID, guild, false, new String[]{});
                 } else { // Filter
 
-                    String[][] createFilterResult = createFilter(args, 1);
+                    String[][] createFilterResult = Utilities.createFilter(args, 1);
                     String[] filter = createFilterResult[0];
                     String[] unknownFeatureTypes = createFilterResult[1];
                     if (unknownFeatureTypes.length > 0) {
@@ -145,7 +122,7 @@ public class DisplaySettings extends SettingsCommand {
                 }
             } else { // Shows whether a feature is on or off with filter
 
-                String[][] createFilterResult = createFilter(args, 0);
+                String[][] createFilterResult = Utilities.createFilter(args, 0);
                 String[] filter = createFilterResult[0];
                 String[] unknownFeatureTypes = createFilterResult[1];
                 if (unknownFeatureTypes.length > 0) {

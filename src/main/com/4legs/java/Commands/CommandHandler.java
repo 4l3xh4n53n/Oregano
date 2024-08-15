@@ -93,6 +93,14 @@ public class CommandHandler extends ListenerAdapter {
     }
 
     /**
+     * Returns a list of every command.
+     * @return Array of OreganoCommand
+     */
+    public static OreganoCommand[] getCommands(){
+        return commands.values().toArray(new OreganoCommand[0]);
+    }
+
+    /**
      * Gets the command, useful for accessing data such as command purpose, builtInPermissions, etc
      * @param commandName The name of the command you want to get
      * @return OreganoCommand
