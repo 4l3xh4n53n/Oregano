@@ -4,6 +4,7 @@ import Commands.CommandHandler;
 import Commands.CommandType;
 import Configurations.SettingsManager;
 import Main.Utilities;
+import Util.Tuple;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.Role;
@@ -108,9 +109,9 @@ public class DisplaySettings extends SettingsCommand {
                     result = showRoles(features, guildID, guild, false, new String[]{});
                 } else { // Filter
 
-                    String[][] createFilterResult = Utilities.createFilter(args, 1);
-                    String[] filter = createFilterResult[0];
-                    String[] unknownFeatureTypes = createFilterResult[1];
+                    Tuple<String[], String[]> createFilterResult = Utilities.createFilter(args, 1);
+                    String[] filter = createFilterResult.x();
+                    String[] unknownFeatureTypes = createFilterResult.y();
                     if (unknownFeatureTypes.length > 0) {
                         output.append("Unknown feature types: ")
                                 .append(Arrays.toString(unknownFeatureTypes).replace("[", "").replace("]", ""))
@@ -122,9 +123,9 @@ public class DisplaySettings extends SettingsCommand {
                 }
             } else { // Shows whether a feature is on or off with filter
 
-                String[][] createFilterResult = Utilities.createFilter(args, 0);
-                String[] filter = createFilterResult[0];
-                String[] unknownFeatureTypes = createFilterResult[1];
+                Tuple<String[], String[]> createFilterResult = Utilities.createFilter(args, 0);
+                String[] filter = createFilterResult.x();
+                String[] unknownFeatureTypes = createFilterResult.y();
                 if (unknownFeatureTypes.length > 0) {
                     output.append("Unknown feature types: ")
                             .append(Arrays.toString(unknownFeatureTypes))

@@ -1,6 +1,7 @@
 package Main;
 
 import Commands.CommandType;
+import Util.Tuple;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -20,7 +21,7 @@ public class Utilities {
         return true;
     }
 
-    public static String[][] createFilter(String[] args, int argStart) {
+    public static Tuple<String[], String[]> createFilter(String[] args, int argStart) {
         List<String> expectedCommandTypes = Arrays.stream(CommandType.values()).map(Enum::name).toList();
         List<String> filter = new ArrayList<>(); // Filters display by command type
         List<String> unknownFilterTypes = new ArrayList<>(); // Used to display invalid input from user
@@ -39,7 +40,7 @@ public class Utilities {
         String[] arrFilter = filter.toArray(String[]::new);
         String[] arrUnknownFilterTypes = unknownFilterTypes.toArray(String[]::new);
 
-        return new String[][]{arrFilter, arrUnknownFilterTypes};
+        return new Tuple<>(arrFilter, arrUnknownFilterTypes);
     }
 
 }

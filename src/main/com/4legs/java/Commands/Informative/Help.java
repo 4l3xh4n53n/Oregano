@@ -4,6 +4,7 @@ import Commands.CommandHandler;
 import Commands.CommandType;
 import Commands.OreganoCommand;
 import Main.Utilities;
+import Util.Tuple;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -51,9 +52,9 @@ public class Help extends InformativeCommand{
     @Override
     public String onCommand(MessageReceivedEvent e, Message message, Guild guild, String guildID, String[] args) {
         boolean filtered = false;
-        String[][] createFilterResult = Utilities.createFilter(args, 0);
-        String[] filter = createFilterResult[0];
-        String[] unknownCommandTypes = createFilterResult[1];
+        Tuple<String[], String[]> createFilterResult = Utilities.createFilter(args, 0);
+        String[] filter = createFilterResult.x();
+        String[] unknownCommandTypes = createFilterResult.y();
 
         if (args.length > 0) filtered = true;
 
