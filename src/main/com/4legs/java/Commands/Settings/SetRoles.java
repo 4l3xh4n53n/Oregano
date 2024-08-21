@@ -11,6 +11,7 @@ import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
@@ -58,11 +59,86 @@ public class SetRoles extends SettingsCommand {
      * @param args  String[] message arguments
      * @return null if successful, a String containing a response if unsuccessful
      */
+    @Deprecated
     protected String checks(MessageReceivedEvent e, String[] args){
         Member author = e.getMember();
         if (!author.hasPermission(Permission.ADMINISTRATOR)) return "You do not have permission to run this command.";
         if (args.length < 2) return "You have not included enough args for this command.";
         return null; // Success
+    }
+
+    /**
+     * Creates a RoleChecksAndData object that has failed a check
+     * @param message (String)  The reason why the check has failed
+     * @return  RoleChecksAndData
+     */
+    protected RoleChecksAndData failedCheck(String message) {
+        return new RoleChecksAndData(
+                false,
+                message,
+                null,
+                null,
+                null,
+                null,
+                null
+        );
+    }
+
+    /**
+     * Does certain checks and returns data
+     * @param e         MessageReceivedEvent
+     * @param message   (Message)   message sent by user
+     * @param guild     (Guild)     guild that is being acted in
+     * @param guildID   (String)    guild's id
+     * @param args      (String[])  message arguments
+     * @return RoleChecksAndData checksSuccessful, checksMessage, featureName, featureIsEnabled, roles, unknownRoles, currentRoleRequirements
+     */
+    protected RoleChecksAndData checksWithRoleRequirements(MessageReceivedEvent e, Message message, Guild guild, String guildID, String[] args){
+        RoleChecksAndData r = checks(e, message, guild, guildID, args);
+        if (r.roles().isEmpty()) return failedCheck("You have not mentioned any valid roles");
+
+        List<String> currentRoleRequirements = Arrays.stream(SettingsManager.getRequiredRoles(guildID, r.featureName())).toList();
+
+        return new RoleChecksAndData(
+                true,
+                "",
+                r.featureName(),
+                r.featureIsEnabled(),
+                r.roles(),
+                r.unknownRoles(),
+                currentRoleRequirements);
+    }
+
+    /**
+     * Does certain checks and returns data
+     * @param e         MessageReceivedEvent
+     * @param message   (Message)   message sent by user
+     * @param guild     (Guild)     guild that is being acted in
+     * @param guildID   (String)    guild's id
+     * @param args      (String[])  message arguments
+     * @return RoleChecksAndData checksSuccessful, checksMessage, featureName, featureIsEnabled, roles, unknownRoles
+     */
+    protected RoleChecksAndData checks(MessageReceivedEvent e, Message message, Guild guild, String guildID, String[] args){
+        Member author = e.getMember();
+        if (!author.hasPermission(Permission.ADMINISTRATOR)) return failedCheck("You do not have permission to run this command.");
+        if (args.length < 2) return failedCheck("You have not included enough args for this command.");
+
+        String featureName = args[0].toLowerCase(Locale.ROOT);
+        Boolean featureIsEnabled = SettingsManager.featureIsEnabled(guildID, featureName);
+        if (featureIsEnabled == null) return failedCheck("Feature does not exist");
+
+        Tuple<List<Role>, List<String>> rolesAndUnknownRoles = getRolesAndUnknownRoles(message, guild, args);
+        List<Role> roles = rolesAndUnknownRoles.x();
+        List<String> unknownRoles = rolesAndUnknownRoles.y();
+
+        return new RoleChecksAndData(
+                true,
+                "Successfull",
+                featureName,
+                featureIsEnabled,
+                roles,
+                unknownRoles,
+                null);
     }
 
     /**
@@ -115,24 +191,17 @@ public class SetRoles extends SettingsCommand {
 
     @Override
     public String onCommand(MessageReceivedEvent e, Message message, Guild guild, String guildID, String[] args) {
-        String checksResult = checks(e, args);
-        if (checksResult != null) return checksResult;
+        RoleChecksAndData r = checks(e, message, guild, guildID, args);
+        if (!r.checksSuccessful()) return r.checksMessage();
 
-        String featureName = args[0].toLowerCase(Locale.ROOT);
-        Boolean featureIsEnabled = SettingsManager.featureIsEnabled(guildID, featureName);
-        if (featureIsEnabled == null) return "Feature does not exist";
-
-        Tuple<List<Role>, List<String>> rolesAndUnknownRoles = getRolesAndUnknownRoles(message, guild, args);
-        List<Role> roles = rolesAndUnknownRoles.x();
-        List<String> unknownRoles = rolesAndUnknownRoles.y();
+        List<Role> roles = r.roles();
 
         String[] roleIDs = new String[roles.size()];
         for (int i = 0; i < roles.size(); i++) {
             roleIDs[i] = roles.get(i).getId();
         }
 
-        SettingsManager.setRequiredRoles(guildID, featureName, roleIDs);
-
-        return makeResponse(featureName, roles, unknownRoles, featureIsEnabled);
+        SettingsManager.setRequiredRoles(guildID, r.featureName(), roleIDs);
+        return makeResponse(r.featureName(), roles, r.unknownRoles(), r.featureIsEnabled());
     }
 }
