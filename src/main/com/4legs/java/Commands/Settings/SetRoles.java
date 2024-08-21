@@ -28,9 +28,9 @@ public class SetRoles extends SettingsCommand {
 
     /**
      * Returns a list of roles and a list of unknown roles.
-     * @param message The message sent from the member
-     * @param guild The guild the message was sent in
-     * @param args Message arguments
+     * @param message   The message sent from the member
+     * @param guild     The guild the message was sent in
+     * @param args      Message arguments
      * @return List of Roles and List of Strings
      */
     protected Tuple<List<Role>, List<String>> getRolesAndUnknownRoles(Message message, Guild guild, String[] args){
@@ -54,8 +54,8 @@ public class SetRoles extends SettingsCommand {
 
     /**
      * Checks that the user has enough permissions and command contains the correct amount of arguments.
-     * @param e MessageReceivedEvent
-     * @param args String[] message arguments
+     * @param e     MessageReceivedEvent
+     * @param args  String[] message arguments
      * @return null if successful, a String containing a response if unsuccessful
      */
     protected String checks(MessageReceivedEvent e, String[] args){
@@ -63,6 +63,54 @@ public class SetRoles extends SettingsCommand {
         if (!author.hasPermission(Permission.ADMINISTRATOR)) return "You do not have permission to run this command.";
         if (args.length < 2) return "You have not included enough args for this command.";
         return null; // Success
+    }
+
+    /**
+     * Formats a response for role update
+     * @param featureName       String The name of the feature being configured
+     * @param roleIDs           List of Strings roleIDs being set
+     * @param unknownRoles      List of Strings of unknown ID's included in the command
+     * @param featureIsEnabled  boolean Whether the feature is enabled or not
+     * @param guild             Guild the command was sent from
+     * @return String response message
+     */
+    protected String makeResponse(String featureName, List<String> roleIDs, List<String> unknownRoles, boolean featureIsEnabled, Guild guild){
+        List<Role> roles = new ArrayList<>();
+        for (String id : roleIDs) {
+            roles.add(guild.getRoleById(id));
+        }
+
+        return makeResponse(featureName, roles, unknownRoles, featureIsEnabled);
+    }
+
+    /**
+     * Formats a response for role update
+     * @param featureName       String name of feature that is being configured
+     * @param roles             List of Roles being set
+     * @param unknownRoles      List of Strings of unknown ID's included in the command
+     * @param featureIsEnabled  boolean whether the feature is enabled or not
+     * @return String response message
+     */
+    protected String makeResponse(String featureName, List<Role> roles, List<String> unknownRoles, boolean featureIsEnabled) {
+        StringBuilder output = new StringBuilder("Roles updated for ");
+        output.append(featureName).append(": ");
+
+        for (Role r : roles){
+            output.append(r.getName()).append(" ");
+        }
+
+        if (!featureIsEnabled) {
+            output.append("\nWARNING: ").append(featureName).append(" is not enabled!");
+        }
+
+        if (!unknownRoles.isEmpty()){
+            output.append("\nUnknown roles: ");
+            for (String r : unknownRoles) {
+                output.append(r);
+            }
+        }
+
+        return output.toString();
     }
 
     @Override
@@ -85,26 +133,6 @@ public class SetRoles extends SettingsCommand {
 
         SettingsManager.setRequiredRoles(guildID, featureName, roleIDs);
 
-        // Make response
-
-        StringBuilder output = new StringBuilder("Roles updated for ");
-        output.append(featureName).append(": ");
-
-        for (Role r : roles){
-            output.append(r.getName()).append(" ");
-        }
-
-        if (!featureIsEnabled) {
-            output.append("\nWARNING: ").append(featureName).append(" is not enabled!");
-        }
-
-        if (unknownRoles.size() > 0){
-            output.append("\nUnknown roles: ");
-            for (String r : unknownRoles) {
-                output.append(r);
-            }
-        }
-
-        return output.toString();
+        return makeResponse(featureName, roles, unknownRoles, featureIsEnabled);
     }
 }
