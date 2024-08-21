@@ -1,15 +1,9 @@
 package Commands.Administrative;
 
-import Configurations.SettingsManager;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
 
 public class Kick extends AdministrativeCommand{
 
@@ -30,21 +24,12 @@ public class Kick extends AdministrativeCommand{
 
     @Override
     public String onCommand(MessageReceivedEvent e, Message message, Guild guild, String guildID, String[] args){
+        AdministrativeChecksAndData c = checks(e, message, guild, guildID, "kick", args, Permission.KICK_MEMBERS, 1, true);
+        if (!c.checksSuccessful()) return c.checksMessage();
 
-        if (!SettingsManager.featureIsEnabled(guildID, "kick")) return null;
-        if (args.length < 1) return "You have not included enough arguments to use this command.";
-        Member mentioned = getMentioned(guild, message, args[0]);
-        if (mentioned == null) return "Member cannot be found.";
-        Member author = e.getMember();
-        boolean hasPermission = checkPermissions(guildID, "kick", author, mentioned, Permission.KICK_MEMBERS);
-        if (!hasPermission) return "You do not have permission to use this command.";
+        String reason = getReason(args, 1);
 
-        List<String> argsList = new LinkedList<>(Arrays.asList(args));
-        argsList.remove(0);
-        argsList.remove(0);
-        String reason = String.join(" ", argsList);
-
-        guild.kick(mentioned, reason).queue();
+        guild.kick(c.mentioned(), reason).queue();
         return "Member has been kicked";
 
     }

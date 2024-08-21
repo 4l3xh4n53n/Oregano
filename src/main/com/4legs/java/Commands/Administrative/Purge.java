@@ -1,6 +1,5 @@
 package Commands.Administrative;
 
-import Configurations.SettingsManager;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -26,12 +25,8 @@ public class Purge extends AdministrativeCommand{
 
     @Override
     public String onCommand(MessageReceivedEvent e, Message message, Guild guild, String guildID, String[] args){
-
-        if (!SettingsManager.featureIsEnabled(guildID, "purge")) return null;
-        if (args.length < 1) return "You have not included enough arguments to use this command.";
-        Member author = e.getMember();
-        boolean hasPermission = checkPermissions(guildID, "purge", author, Permission.MESSAGE_MANAGE);
-        if (!hasPermission) return "You do not have permission to use this command.";
+        AdministrativeChecksAndData c = checks(e, message, guild, guildID, "purge", args, Permission.MESSAGE_MANAGE, 1, false);
+        if (!c.checksSuccessful()) return c.checksMessage();
 
         int messageCount = stringToInt(args[0]);
         if (messageCount < 0) return "Message count must be numerical and above 0";
@@ -50,7 +45,6 @@ public class Purge extends AdministrativeCommand{
         }
 
         return null;
-
     }
 
 }

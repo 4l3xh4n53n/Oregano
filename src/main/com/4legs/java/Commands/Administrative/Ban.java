@@ -1,15 +1,9 @@
 package Commands.Administrative;
 
-import Configurations.SettingsManager;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
 
 public class Ban extends AdministrativeCommand {
 
@@ -30,21 +24,12 @@ public class Ban extends AdministrativeCommand {
 
     @Override
     public String onCommand(MessageReceivedEvent e, Message message, Guild guild, String guildID, String[] args){
+        AdministrativeChecksAndData c = checks(e, message, guild, guildID, "ban", args, Permission.BAN_MEMBERS, 1, true);
+        if (!c.checksSuccessful()) return c.checksMessage();
 
-        if (!SettingsManager.featureIsEnabled(guildID, "ban")) return null;
-        if (args.length < 1) return "You have not included enough arguments to use this command.";
-        Member mentioned = getMentioned(guild, message, args[0]);
-        if (mentioned == null) return "Member cannot be found.";
-        Member author = e.getMember();
-        boolean hasPermission = checkPermissions(guildID, "ban", author, mentioned, Permission.BAN_MEMBERS);
-        if (!hasPermission) return "You do not have permission to use this command.";
+        String reason = getReason(args, 1);
 
-        List<String> argsList = new LinkedList<>(Arrays.asList(args));
-        argsList.remove(0);
-        argsList.remove(0);
-        String reason = String.join(" ", argsList);
-
-        mentioned.ban(0, reason).queue();
+        c.mentioned().ban(0, reason).queue();
         return "Member has been banned";
 
     }
