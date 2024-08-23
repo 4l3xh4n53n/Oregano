@@ -83,10 +83,6 @@ public class CommandHandler extends ListenerAdapter {
 
         if (author.isBot() || author.isSystem()) return;
 
-        if (messageContent.toLowerCase().contains("prefix")) {
-            e.getChannel().sendMessage("The guilds prefix is: " + prefix).queue();
-        }
-
         if (!messageContent.startsWith(prefix)) return;
 
         String[] args = messageContent.replace(prefix, "").split("\\s+");
