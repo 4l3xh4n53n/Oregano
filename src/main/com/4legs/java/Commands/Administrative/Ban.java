@@ -5,6 +5,8 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
+import java.util.concurrent.TimeUnit;
+
 public class Ban extends AdministrativeCommand {
 
     @Override
@@ -29,7 +31,7 @@ public class Ban extends AdministrativeCommand {
 
         String reason = getReason(args, 1);
 
-        c.mentioned().ban(0, reason).queue();
+        c.mentioned().ban(0, TimeUnit.DAYS).reason(reason).queue();
         return "Member has been banned";
 
     }

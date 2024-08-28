@@ -5,6 +5,8 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
+import java.util.concurrent.TimeUnit;
+
 public class TempBan extends Ban{
 
     @Override
@@ -33,7 +35,7 @@ public class TempBan extends Ban{
 
         String reason = getReason(args, 2);
 
-        c.mentioned().ban(length, reason).queue();
+        c.mentioned().ban(length, TimeUnit.DAYS).reason(reason).queue();
         return "Member  has been temporarily banned.";
 
     }

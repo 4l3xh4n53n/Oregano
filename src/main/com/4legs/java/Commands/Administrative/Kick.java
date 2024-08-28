@@ -29,7 +29,7 @@ public class Kick extends AdministrativeCommand{
 
         String reason = getReason(args, 1);
 
-        guild.kick(c.mentioned(), reason).queue();
+        guild.kick(c.mentioned()).reason(reason).queue();
         return "Member has been kicked";
 
     }

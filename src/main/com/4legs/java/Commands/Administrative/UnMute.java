@@ -19,13 +19,13 @@ public class UnMute extends Mute {
 
     @Override
     public Permission getBuiltInPermission(){
-        return null; // todo change to time out
+        return Permission.MODERATE_MEMBERS;
     }
 
     @Override
     public String onCommand(MessageReceivedEvent e, Message message, Guild guild, String guildID, String[] args) {
         AdministrativeChecksAndData c = checks(e, message, guild, guildID, "mute", args, Permission.MODERATE_MEMBERS, 1, true);
-        if (!c.checksSuccessful()) return c.checksMessage(); // todo Permission.MODERATE_MEMBERS has changed
+        if (!c.checksSuccessful()) return c.checksMessage();
 
         c.mentioned().removeTimeout().queue();
 

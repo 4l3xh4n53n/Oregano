@@ -24,7 +24,7 @@
         <dependency>
             <groupId>com.github.DV8FromTheWorld</groupId>
             <artifactId>JDA</artifactId>
-            <version>v5.0.0-alpha.17</version>
+            <version>v5.1.0</version>
         </dependency>
         <dependency>
             <groupId>ch.qos.logback</groupId>

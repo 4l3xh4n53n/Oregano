@@ -21,7 +21,7 @@ public class Mute extends AdministrativeCommand{
 
     @Override
     public Permission getBuiltInPermission(){
-        return null; // todo change to time out
+        return Permission.MODERATE_MEMBERS;
     }
 
     @Override
