@@ -1,10 +1,12 @@
 package Commands;
 
 import Configurations.SettingsManager;
+import Main.Oregano;
 import com.google.common.reflect.ClassPath;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.slf4j.Logger;
@@ -67,6 +69,13 @@ public class CommandHandler extends ListenerAdapter {
 
     }
 
+    public static void registerSlashCommands(){
+        for (OreganoCommand command : commands.values()) {
+            if (command.getSlashCommand() == null) continue;
+            Oregano.getJDA().upsertCommand(command.getSlashCommand()).queue();
+        }
+    }
+
     @Override
     public void onMessageReceived(MessageReceivedEvent e){
 
@@ -99,6 +108,13 @@ public class CommandHandler extends ListenerAdapter {
 
         }
 
+    }
+
+    @Override
+    public void onSlashCommandInteraction(SlashCommandInteractionEvent e){
+        String name = e.getName();
+        String response = commands.get(name).onSlashCommand(e, e.getGuild(), e.getOptions()); // todo test edge case where command is removed
+        e.reply(response).queue();
     }
 
     /**

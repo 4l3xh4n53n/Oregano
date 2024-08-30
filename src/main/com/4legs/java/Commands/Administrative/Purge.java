@@ -6,7 +6,13 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.channel.ChannelType;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.entities.channel.concrete.ThreadChannel;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.interactions.commands.DefaultMemberPermissions;
+import net.dv8tion.jda.api.interactions.commands.OptionMapping;
+import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.Commands;
+import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
 
 import java.util.List;
 
@@ -25,6 +31,19 @@ public class Purge extends AdministrativeCommand{
     @Override
     public Permission getBuiltInPermission(){
         return Permission.MESSAGE_MANAGE;
+    }
+
+    @Override
+    public SlashCommandData getSlashCommand() {
+        return Commands.slash("purge", "Removes a specified number of messages.")
+                .setDefaultPermissions(DefaultMemberPermissions.enabledFor(Permission.MESSAGE_MANAGE))
+                .addOption(OptionType.INTEGER, "count", "How many messages you want to delete (including the one you send)", true)
+                .setGuildOnly(true);
+    }
+
+    @Override
+    public String onSlashCommand(SlashCommandInteractionEvent e, Guild guild, List<OptionMapping> options) {
+        return null;
     }
 
     @Override

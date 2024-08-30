@@ -3,9 +3,16 @@ package Commands.Administrative;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.interactions.commands.DefaultMemberPermissions;
+import net.dv8tion.jda.api.interactions.commands.OptionMapping;
+import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.Commands;
+import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
 
 import java.time.Duration;
+import java.util.List;
 
 public class Mute extends AdministrativeCommand{
 
@@ -22,6 +29,20 @@ public class Mute extends AdministrativeCommand{
     @Override
     public Permission getBuiltInPermission(){
         return Permission.MODERATE_MEMBERS;
+    }
+
+    @Override
+    public SlashCommandData getSlashCommand() {
+        return Commands.slash("mute", "Stops a user from talking.")
+                .setDefaultPermissions(DefaultMemberPermissions.enabledFor(Permission.KICK_MEMBERS))
+                .addOption(OptionType.USER, "member", "Who you want to kick", true)
+                .addOption(OptionType.STRING, "reason", "Why you are kicking them", false)
+                .setGuildOnly(true);
+    }
+
+    @Override
+    public String onSlashCommand(SlashCommandInteractionEvent e, Guild guild, List<OptionMapping> options) {
+        return null;
     }
 
     @Override

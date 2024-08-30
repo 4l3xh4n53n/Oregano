@@ -3,7 +3,15 @@ package Commands.Administrative;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.interactions.commands.DefaultMemberPermissions;
+import net.dv8tion.jda.api.interactions.commands.OptionMapping;
+import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.Commands;
+import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
+
+import java.util.List;
 
 public class UnMute extends Mute {
 
@@ -18,8 +26,16 @@ public class UnMute extends Mute {
     }
 
     @Override
-    public Permission getBuiltInPermission(){
-        return Permission.MODERATE_MEMBERS;
+    public SlashCommandData getSlashCommand() {
+        return Commands.slash("unmute", "Allows a muted user to talk again.")
+                .setDefaultPermissions(DefaultMemberPermissions.enabledFor(Permission.MODERATE_MEMBERS))
+                .addOption(OptionType.USER, "member", "Who you want to un-mute", true)
+                .setGuildOnly(true);
+    }
+
+    @Override
+    public String onSlashCommand(SlashCommandInteractionEvent e, Guild guild, List<OptionMapping> options) {
+        return null;
     }
 
     @Override

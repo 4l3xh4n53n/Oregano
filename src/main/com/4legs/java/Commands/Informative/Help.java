@@ -7,7 +7,10 @@ import Main.Utilities;
 import Util.Tuple;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.interactions.commands.OptionMapping;
+import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
 
 import java.util.*;
 
@@ -21,6 +24,16 @@ public class Help extends InformativeCommand{
     @Override
     public String getPurpose() {
         return "Shows which commands and features the bot has.";
+    }
+
+    @Override
+    public SlashCommandData getSlashCommand() {
+        return null;
+    }
+
+    @Override
+    public String onSlashCommand(SlashCommandInteractionEvent e, Guild guild, List<OptionMapping> options) {
+        return null;
     }
 
     /**
