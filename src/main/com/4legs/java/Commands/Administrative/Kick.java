@@ -2,6 +2,7 @@ package Commands.Administrative;
 
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -10,6 +11,7 @@ import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
+import net.dv8tion.jda.api.requests.restaction.AuditableRestAction;
 
 import java.util.List;
 
@@ -40,7 +42,17 @@ public class Kick extends AdministrativeCommand {
     }
 
     @Override
-    public String onSlashCommand(SlashCommandInteractionEvent e, Guild guild, List<OptionMapping> options) {
+    public String onSlashCommand(SlashCommandInteractionEvent e, Guild guild, List<OptionMapping> options) { // todo TEST WALLAHI
+        Member mentioned  = e.getOption("member").getAsMember();
+        OptionMapping reasonOption = e.getOption("reason");
+
+        String checkResult = permissionCheck(guild, Permission.KICK_MEMBERS, e.getMember(), mentioned);
+        if (checkResult != null) return checkResult;
+
+        AuditableRestAction<Void> kickRequest = mentioned.kick();
+        if (reasonOption != null) kickRequest.reason(reasonOption.getAsString());
+        kickRequest.queue();
+
         return null;
     }
 

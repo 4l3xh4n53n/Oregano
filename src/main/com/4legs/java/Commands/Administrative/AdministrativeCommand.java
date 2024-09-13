@@ -190,4 +190,41 @@ public abstract class AdministrativeCommand implements OreganoCommand {
         return String.join(" ", argsList);
     }
 
+    /**
+     * Looks at roles hierarchy in a server, compares to see whether member1 is higher than member2
+     * @param member1   Member 1
+     * @param member2   Member 2
+     * @return  boolean true if member 1 is higher, false if member 2 is higher
+     */
+    protected boolean checkHierarchy(Member member1, Member member2){
+        int position1 = 0;
+        int position2 = 0;
+
+        List<Role> roles1 = member1.getRoles();
+        List<Role> roles2 = member2.getRoles();
+
+        if (roles1.size() > 0) position1 = roles1.get(0).getPosition();
+        if (roles2.size() > 0) position2 = roles2.get(0).getPosition();
+
+        return position1 > position2;
+    }
+
+    /**
+     * Checks whether the bot has permission, the bot is higher than mentioned, and the author is higher than mentioned
+     * @param guild         Guild that the command was sent in
+     * @param permission    Permission that is required
+     * @param author        Member who executed the command
+     * @param mentioned     Member who is being mentioned
+     * @return String null if successful, if unsuccessful returns a string with error message
+     */
+    protected String permissionCheck(Guild guild, Permission permission, Member author, Member mentioned){
+        Member selfMember = guild.getSelfMember();
+
+        if (!selfMember.hasPermission(permission)) return "Bot does not have permission to run this command.";
+        if (!checkHierarchy(selfMember, mentioned)) return "Bot does not have permission to kick that member.";
+        if (!checkHierarchy(author, mentioned)) return "You do not have permission to kick that member.";
+
+        return null;
+    }
+
 }

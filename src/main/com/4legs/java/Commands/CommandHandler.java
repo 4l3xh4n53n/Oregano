@@ -112,6 +112,7 @@ public class CommandHandler extends ListenerAdapter {
 
     @Override
     public void onSlashCommandInteraction(SlashCommandInteractionEvent e){
+        if (e.getGuild() == null) return; // todo change slash commands to only be added to guilds with those features turned on
         String name = e.getName();
         String response = commands.get(name).onSlashCommand(e, e.getGuild(), e.getOptions()); // todo test edge case where command is removed
         e.reply(response).queue();
