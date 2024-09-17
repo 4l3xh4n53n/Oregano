@@ -3,7 +3,7 @@ package Commands.Settings;
 import Commands.CommandHandler;
 import Commands.CommandType;
 import Configurations.SettingsManager;
-import Main.Utilities;
+import Util.Utilities;
 import Util.Tuple;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;

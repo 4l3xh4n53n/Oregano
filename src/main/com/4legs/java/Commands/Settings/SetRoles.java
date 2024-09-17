@@ -1,7 +1,7 @@
 package Commands.Settings;
 
 import Configurations.SettingsManager;
-import Main.Utilities;
+import Util.Utilities;
 import Util.Tuple;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;

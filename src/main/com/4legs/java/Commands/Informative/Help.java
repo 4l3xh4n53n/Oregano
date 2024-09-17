@@ -3,7 +3,7 @@ package Commands.Informative;
 import Commands.CommandHandler;
 import Commands.CommandType;
 import Commands.OreganoCommand;
-import Main.Utilities;
+import Util.Utilities;
 import Util.Tuple;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
